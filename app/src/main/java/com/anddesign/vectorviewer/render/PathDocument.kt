@@ -40,6 +40,14 @@ class PathDocument private constructor(
         canvas.drawPath(path, paint)
     }
 
+    /** En PDF/impresión usamos un trazo fino real (0,5 pt) en lugar de 1 px. */
+    private val printPaint = Paint(paint).apply { strokeWidth = 0.5f }
+
+    override fun drawVector(page: Int, canvas: Canvas): Boolean {
+        canvas.drawPath(path, printPaint)
+        return true
+    }
+
     companion object {
         private const val MARGIN_PT = 8f
 

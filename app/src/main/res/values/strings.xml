@@ -52,4 +52,9 @@
     <string name="sort_date">Ordenar por fecha</string>
     <string name="sort_name">Ordenar por nombre</string>
     <string name="empty_folder">No hay archivos vectoriales aquí</string>
+    <string name="export_pdf">Exportar PDF</string>
+    <string name="print">Imprimir</string>
+    <string name="send_to_claude">Enviar a Claude</string>
+    <string name="print_error">No se pudo imprimir</string>
+    <string name="claude_missing">Instala la app de Claude para enviarle el diseño</string>
 </resources>

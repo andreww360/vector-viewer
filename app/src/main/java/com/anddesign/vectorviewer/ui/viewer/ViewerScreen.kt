@@ -2,12 +2,16 @@ package com.anddesign.vectorviewer.ui.viewer
 
 import android.app.Activity
 import android.app.Application
+import android.content.ClipData
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.graphics.Shader
+import android.net.Uri
+import android.print.PrintManager
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -24,9 +28,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Contrast
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PictureAsPdf
+import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material.icons.outlined.Straighten
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +41,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -79,6 +87,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.anddesign.vectorviewer.R
 import com.anddesign.vectorviewer.data.Repos
 import com.anddesign.vectorviewer.render.LoadedDocument
+import com.anddesign.vectorviewer.render.PdfFilePrintAdapter
 import com.anddesign.vectorviewer.ui.components.Pill
 import com.anddesign.vectorviewer.ui.theme.Accent
 import com.anddesign.vectorviewer.util.Backdrop
@@ -92,6 +101,14 @@ import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.roundToInt
 import android.graphics.Paint as APaint
+
+/** Busca la app de Claude entre las apps que reciben imágenes compartidas. */
+private fun findClaudePackage(context: Context): String? {
+    val probe = Intent(Intent.ACTION_SEND).setType("image/png")
+    return context.packageManager.queryIntentActivities(probe, 0)
+        .map { it.activityInfo.packageName }
+        .firstOrNull { it.contains("anthropic", ignoreCase = true) }
+}
 
 private class SharpFrame(val bitmap: Bitmap, val page: Int, val scale: Float, val offset: Offset)
 
@@ -124,6 +141,8 @@ fun ViewerScreen(uri: String, onBack: () -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
     val exportError = stringResource(R.string.export_error)
     val shareTitle = stringResource(R.string.share_title)
+    val printError = stringResource(R.string.print_error)
+    val claudeMissing = stringResource(R.string.claude_missing)
 
     fun exportPng(dpi: Int) {
         menuOpen = false
@@ -159,6 +178,71 @@ fun ViewerScreen(uri: String, onBack: () -> Unit) {
         }
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         runCatching { context.startActivity(Intent.createChooser(intent, shareTitle)) }
+    }
+
+    fun exportPdf() {
+        menuOpen = false
+        scope.launch {
+            try {
+                val u = vm.uriFor(context, vm.exportPdfFile(context))
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, u)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(send, shareTitle))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                snackbar.showSnackbar("$exportError: ${e.message}")
+            }
+        }
+    }
+
+    fun print() {
+        menuOpen = false
+        val name = ready?.name ?: return
+        scope.launch {
+            try {
+                val file = vm.exportPdfFile(context)
+                val pm = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+                pm.print(name, PdfFilePrintAdapter(file, name), null)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                snackbar.showSnackbar("$printError: ${e.message}")
+            }
+        }
+    }
+
+    fun sendToClaude() {
+        menuOpen = false
+        scope.launch {
+            try {
+                val u = vm.exportForClaude(context)
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, u)
+                    putExtra(Intent.EXTRA_TEXT, vm.claudeContext(unit))
+                    clipData = ClipData.newRawUri("", u)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                val claudePkg = findClaudePackage(context)
+                if (claudePkg != null) {
+                    send.setPackage(claudePkg)
+                    context.startActivity(send)
+                } else {
+                    runCatching {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://search?q=Claude%20by%20Anthropic")))
+                    }
+                    snackbar.showSnackbar(claudeMissing)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                snackbar.showSnackbar("$exportError: ${e.message}")
+            }
+        }
     }
 
     Scaffold(
@@ -202,6 +286,22 @@ fun ViewerScreen(uri: String, onBack: () -> Unit) {
                                 Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.more))
                             }
                             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.send_to_claude)) },
+                                    leadingIcon = { Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = Accent) },
+                                    onClick = { sendToClaude() },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.export_pdf)) },
+                                    leadingIcon = { Icon(Icons.Outlined.PictureAsPdf, contentDescription = null) },
+                                    onClick = { exportPdf() },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.print)) },
+                                    leadingIcon = { Icon(Icons.Outlined.Print, contentDescription = null) },
+                                    onClick = { print() },
+                                )
+                                HorizontalDivider()
                                 DropdownMenuItem(text = { Text(stringResource(R.string.export_png_300)) }, onClick = { exportPng(300) })
                                 DropdownMenuItem(text = { Text(stringResource(R.string.export_png_600)) }, onClick = { exportPng(600) })
                                 DropdownMenuItem(text = { Text(stringResource(R.string.share_original)) }, onClick = { shareOriginal(false) })

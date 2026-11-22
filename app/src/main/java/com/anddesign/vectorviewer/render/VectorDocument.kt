@@ -1,6 +1,7 @@
 package com.anddesign.vectorviewer.render
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Matrix
 import android.util.SizeF
 import java.io.Closeable
@@ -30,6 +31,12 @@ interface VectorDocument : Closeable {
     fun pageSize(page: Int): SizeF
 
     fun render(page: Int, bitmap: Bitmap, matrix: Matrix)
+
+    /**
+     * Dibuja la página como vector en un Canvas en puntos (p. ej. el de un PDF o de impresión).
+     * Devuelve false si el formato solo puede rasterizarse.
+     */
+    fun drawVector(page: Int, canvas: Canvas): Boolean = false
 
     override fun close() {}
 }

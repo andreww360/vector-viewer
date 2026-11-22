@@ -14,18 +14,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.anddesign.vectorviewer.data.Repos
 import com.anddesign.vectorviewer.render.DocumentLoader
+import com.anddesign.vectorviewer.render.Exporter
 import com.anddesign.vectorviewer.render.LoadedDocument
 import com.anddesign.vectorviewer.render.Rendering
-import com.anddesign.vectorviewer.util.FileUtils
+import com.anddesign.vectorviewer.util.LengthUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.math.max
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 class ViewerViewModel(app: Application, private val uriString: String) : AndroidViewModel(app) {
 
@@ -108,38 +106,47 @@ class ViewerViewModel(app: Application, private val uriString: String) : Android
         }
     }
 
-    /** Exporta la página actual a PNG transparente y devuelve un content:// para compartir. */
-    suspend fun exportPng(context: Context, dpi: Int): Uri {
-        val d = loaded ?: error("Documento no cargado")
-        val p = page
+    private suspend fun <T> working(block: suspend () -> T): T {
         busy = true
         try {
-            val file = withContext(Dispatchers.Default) {
-                val size = d.document.pageSize(p)
-                val scale = minOf(
-                    dpi / 72f,
-                    MAX_EXPORT_SIDE / max(size.width, size.height),
-                    sqrt(MAX_EXPORT_PIXELS / (size.width * size.height)),
-                )
-                val bmp = Bitmap.createBitmap(
-                    max(1, (size.width * scale).roundToInt()),
-                    max(1, (size.height * scale).roundToInt()),
-                    Bitmap.Config.ARGB_8888,
-                )
-                d.document.render(p, bmp, Matrix().apply { setScale(scale, scale) })
-                val dir = File(context.cacheDir, "exports").apply { mkdirs() }
-                val suffix = if (d.document.pageCount > 1) "_p${p + 1}" else ""
-                val out = File(dir, "${FileUtils.safeBaseName(d.name)}${suffix}_${dpi}dpi.png")
-                withContext(Dispatchers.IO) {
-                    out.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
-                }
-                bmp.recycle()
-                out
-            }
-            return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            return withContext(Dispatchers.Default) { block() }
         } finally {
             busy = false
         }
+    }
+
+    private fun shareUri(context: Context, file: File): Uri =
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+
+    /** PNG transparente de la página actual. */
+    suspend fun exportPng(context: Context, dpi: Int): Uri {
+        val d = loaded ?: error("Documento no cargado")
+        val p = page
+        return shareUri(context, working { Exporter.exportPng(context, d, p, dpi, suffix = "_${dpi}dpi") })
+    }
+
+    /** PDF a escala real; el archivo se usa también para imprimir. */
+    suspend fun exportPdfFile(context: Context): File {
+        val d = loaded ?: error("Documento no cargado")
+        val p = page
+        return working { Exporter.exportPdf(context, d, p) }
+    }
+
+    fun uriFor(context: Context, file: File): Uri = shareUri(context, file)
+
+    /** Imagen con fondo blanco y tamaño moderado (máx. 2400 px) para que Claude la analice. */
+    suspend fun exportForClaude(context: Context): Uri {
+        val d = loaded ?: error("Documento no cargado")
+        val p = page
+        return shareUri(context, working { Exporter.exportPng(context, d, p, dpi = 200, maxSide = 2400f, opaque = true, suffix = "_claude") })
+    }
+
+    /** Texto de contexto que acompaña la imagen enviada a Claude. */
+    fun claudeContext(unit: LengthUnit): String {
+        val d = loaded ?: return ""
+        val s = d.document.pageSize(page)
+        val size = if (d.document.hasRealScale) unit.formatSize(s.width.toDouble(), s.height.toDouble()) else "tamaño desconocido"
+        return "Archivo: ${d.name} (${d.format.label}). Mesa de trabajo: $size."
     }
 
     /** content:// de la copia local, para "Compartir" y "Abrir con". */
@@ -156,7 +163,5 @@ class ViewerViewModel(app: Application, private val uriString: String) : Android
 
     private companion object {
         const val BASE_SIDE = 2048
-        const val MAX_EXPORT_SIDE = 8000f
-        const val MAX_EXPORT_PIXELS = 48_000_000f
     }
 }

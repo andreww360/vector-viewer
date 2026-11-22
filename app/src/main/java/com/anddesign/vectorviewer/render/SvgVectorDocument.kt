@@ -28,10 +28,17 @@ class SvgVectorDocument private constructor(
     override fun render(page: Int, bitmap: Bitmap, matrix: Matrix) {
         val canvas = Canvas(bitmap)
         canvas.concat(matrix)
+        drawVector(page, canvas)
+    }
+
+    override fun drawVector(page: Int, canvas: Canvas): Boolean {
+        canvas.save()
         canvas.scale(PX_TO_PT, PX_TO_PT)
         synchronized(svg) {
             svg.renderToCanvas(canvas, RenderOptions().viewPort(0f, 0f, widthPx, heightPx))
         }
+        canvas.restore()
+        return true
     }
 
     companion object {
