@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AND Vector Viewer</string>
+    <string name="tagline">AI, EPS, CDR, PDF, SVG, DXF and PLT on your phone</string>
+
+    <string name="open_from">Open from</string>
+    <string name="src_phone">Phone</string>
+    <string name="src_phone_sub">Internal storage, SD and USB</string>
+    <string name="src_drive">Google Drive</string>
+    <string name="src_drive_sub">Your cloud files</string>
+    <string name="src_onedrive">OneDrive</string>
+    <string name="src_onedrive_sub">Microsoft 365</string>
+    <string name="src_folder">Browse folder</string>
+    <string name="src_folder_sub">Gallery with thumbnails</string>
+    <string name="hint_drive">In the picker, open the ☰ menu and choose Google Drive</string>
+    <string name="hint_onedrive">In the picker, open the ☰ menu and choose OneDrive</string>
+    <string name="other_providers">Dropbox, Box, MEGA and others also show up in the picker when their app is installed.</string>
+
+    <string name="saved_folders">Saved folders</string>
+    <string name="favorites">Favorites</string>
+    <string name="recents">Recent</string>
+    <string name="no_recents">No files opened yet. Pick a source above to get started.</string>
+    <string name="remove">Remove</string>
+    <string name="favorite">Favorite</string>
+
+    <string name="back">Back</string>
+    <string name="info">Info</string>
+    <string name="measure">Measure</string>
+    <string name="background">Background</string>
+    <string name="more">More options</string>
+    <string name="export_png_300">Export PNG (300 dpi)</string>
+    <string name="export_png_600">Export PNG (600 dpi)</string>
+    <string name="share_original">Share original file</string>
+    <string name="open_with">Open with another app</string>
+    <string name="share_title">Share</string>
+    <string name="export_error">Export failed</string>
+    <string name="measure_hint">Tap two points to measure</string>
+    <string name="preview_only">Embedded preview (not the full vector)</string>
+    <string name="page_of">%1$d / %2$d</string>
+    <string name="prev_page">Previous page</string>
+    <string name="next_page">Next page</string>
+    <string name="loading_error_title">Could not open</string>
+
+    <string name="info_format">Format</string>
+    <string name="info_size">Size</string>
+    <string name="info_pages">Pages / artboards</string>
+    <string name="info_artboard">Artboard</string>
+    <string name="info_engine">Engine</string>
+    <string name="ok">OK</string>
+
+    <string name="search_folder">Search this folder</string>
+    <string name="sort_date">Sort by date</string>
+    <string name="sort_name">Sort by name</string>
+    <string name="empty_folder">No vector files here</string>
+</resources>

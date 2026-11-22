@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AND Vector Viewer</string>
+    <string name="tagline">AI, EPS, CDR, PDF, SVG, DXF y PLT en tu teléfono</string>
+
+    <string name="open_from">Abrir desde</string>
+    <string name="src_phone">Teléfono</string>
+    <string name="src_phone_sub">Memoria interna, SD y USB</string>
+    <string name="src_drive">Google Drive</string>
+    <string name="src_drive_sub">Tus archivos en la nube</string>
+    <string name="src_onedrive">OneDrive</string>
+    <string name="src_onedrive_sub">Microsoft 365</string>
+    <string name="src_folder">Explorar carpeta</string>
+    <string name="src_folder_sub">Galería con miniaturas</string>
+    <string name="hint_drive">En el selector, abre el menú ☰ y elige Google Drive</string>
+    <string name="hint_onedrive">En el selector, abre el menú ☰ y elige OneDrive</string>
+    <string name="other_providers">Dropbox, Box, MEGA y otros también aparecen en el selector si tienes su app instalada.</string>
+
+    <string name="saved_folders">Carpetas guardadas</string>
+    <string name="favorites">Favoritos</string>
+    <string name="recents">Recientes</string>
+    <string name="no_recents">Aún no abriste archivos. Elige un origen arriba para empezar.</string>
+    <string name="remove">Quitar</string>
+    <string name="favorite">Favorito</string>
+
+    <string name="back">Volver</string>
+    <string name="info">Información</string>
+    <string name="measure">Medir</string>
+    <string name="background">Fondo</string>
+    <string name="more">Más opciones</string>
+    <string name="export_png_300">Exportar PNG (300 dpi)</string>
+    <string name="export_png_600">Exportar PNG (600 dpi)</string>
+    <string name="share_original">Compartir archivo original</string>
+    <string name="open_with">Abrir con otra app</string>
+    <string name="share_title">Compartir</string>
+    <string name="export_error">No se pudo exportar</string>
+    <string name="measure_hint">Toca dos puntos para medir</string>
+    <string name="preview_only">Vista previa incrustada (no es el vector completo)</string>
+    <string name="page_of">%1$d / %2$d</string>
+    <string name="prev_page">Página anterior</string>
+    <string name="next_page">Página siguiente</string>
+    <string name="loading_error_title">No se pudo abrir</string>
+
+    <string name="info_format">Formato</string>
+    <string name="info_size">Tamaño</string>
+    <string name="info_pages">Páginas / mesas de trabajo</string>
+    <string name="info_artboard">Mesa de trabajo</string>
+    <string name="info_engine">Motor</string>
+    <string name="ok">OK</string>
+
+    <string name="search_folder">Buscar en esta carpeta</string>
+    <string name="sort_date">Ordenar por fecha</string>
+    <string name="sort_name">Ordenar por nombre</string>
+    <string name="empty_folder">No hay archivos vectoriales aquí</string>
+</resources>

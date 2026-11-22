@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Sin permisos de almacenamiento: todo el acceso a archivos (teléfono, SD,
+         Google Drive, OneDrive, Dropbox…) pasa por el Storage Access Framework.
+         Así la app cumple la política de Play Store sin pedir MANAGE_EXTERNAL_STORAGE. -->
+
+    <!-- Visibilidad de paquetes: para saber si Drive / OneDrive / Dropbox están instalados -->
+    <queries>
+        <package android:name="com.google.android.apps.docs" />
+        <package android:name="com.microsoft.skydrive" />
+        <package android:name="com.dropbox.android" />
+    </queries>
+
+    <application
+        android:name=".VectorViewerApp"
+        android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VectorViewer">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- "Abrir con…" desde Archivos, Drive, Gmail, WhatsApp, etc. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/postscript" />
+                <data android:mimeType="application/illustrator" />
+                <data android:mimeType="application/eps" />
+                <data android:mimeType="application/x-eps" />
+                <data android:mimeType="image/eps" />
+                <data android:mimeType="image/x-eps" />
+                <data android:mimeType="image/svg+xml" />
+                <data android:mimeType="application/cdr" />
+                <data android:mimeType="application/coreldraw" />
+                <data android:mimeType="application/x-cdr" />
+                <data android:mimeType="application/x-coreldraw" />
+                <data android:mimeType="image/x-cdr" />
+                <data android:mimeType="application/dxf" />
+                <data android:mimeType="image/vnd.dxf" />
+                <data android:mimeType="image/x-dxf" />
+                <data android:mimeType="application/vnd.hp-hpgl" />
+            </intent-filter>
+
+            <!-- "Compartir con…" -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/postscript" />
+                <data android:mimeType="application/illustrator" />
+                <data android:mimeType="image/svg+xml" />
+                <data android:mimeType="application/x-cdr" />
+                <data android:mimeType="application/cdr" />
+                <data android:mimeType="image/vnd.dxf" />
+                <data android:mimeType="application/dxf" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>
