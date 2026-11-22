@@ -141,7 +141,7 @@ prefieren pagar una vez antes que suscribirse:
 - [ ] Política de privacidad publicada (puede ir en mx-templates.com). La app no recopila datos.
 - [ ] Formulario "Seguridad de los datos": sin datos recopilados ni compartidos (fase 1).
 - [ ] Ícono 512×512, gráfico destacado 1024×500, capturas de teléfono y tablet.
-- [ ] Reemplazar el ícono provisorio por el logo AND DSGN (`res/drawable/ic_launcher_foreground.xml`).
+- [x] Ícono de la app con el logo AND DSGN. Ícono de 512×512 para la ficha: `store/play_icon_512.png`.
 - [ ] Ficha en español e inglés; palabras clave: "ai viewer", "eps viewer", "cdr viewer", "visor illustrator", "dxf viewer".
 - [ ] `targetSdk` actualizado (hoy 36) y App Bundle firmado.
 

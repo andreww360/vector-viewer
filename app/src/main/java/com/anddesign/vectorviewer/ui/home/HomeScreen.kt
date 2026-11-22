@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -166,11 +168,10 @@ fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> U
 @Composable
 private fun Header() {
     Column(Modifier.padding(bottom = 8.dp)) {
-        Text(
-            "AND DSGN",
-            color = Accent,
-            fontWeight = FontWeight.Black,
-            style = MaterialTheme.typography.labelLarge,
+        Image(
+            painter = painterResource(R.drawable.logo_and_dsgn),
+            contentDescription = "AND DSGN",
+            modifier = Modifier.height(56.dp).padding(bottom = 8.dp),
         )
         Text(
             stringResource(R.string.app_name),
