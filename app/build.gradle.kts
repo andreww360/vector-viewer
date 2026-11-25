@@ -18,6 +18,23 @@ android {
         versionName = "0.5.0"
     }
 
+    // Firma fija para las versiones de prueba (necesaria para iniciar sesión en OneDrive y para
+    // actualizar sin desinstalar). La llave NO está en el repositorio: GitHub Actions la crea a partir
+    // de los secretos DEV_KEYSTORE_BASE64 y DEV_KEYSTORE_PASSWORD. Sin esos secretos se usa la firma
+    // de depuración estándar.
+    val devKeystore = file("dev-signing.keystore")
+    val devPassword = System.getenv("DEV_KEYSTORE_PASSWORD")
+    if (devKeystore.exists() && !devPassword.isNullOrBlank()) {
+        signingConfigs {
+            getByName("debug") {
+                storeFile = devKeystore
+                storePassword = devPassword
+                keyAlias = "anddsgn-dev"
+                keyPassword = devPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true

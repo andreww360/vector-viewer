@@ -21,7 +21,20 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Preparar firma fija (desde los secretos del repositorio)
+        env:
+          DEV_KEYSTORE_BASE64: ${{ secrets.DEV_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$DEV_KEYSTORE_BASE64" ]; then
+            echo "$DEV_KEYSTORE_BASE64" | base64 -d > app/dev-signing.keystore
+            echo "Firma fija configurada"
+          else
+            echo "Sin secreto DEV_KEYSTORE_BASE64: se usa la firma de depuración estándar"
+          fi
+
       - name: Compilar APK de prueba
+        env:
+          DEV_KEYSTORE_PASSWORD: ${{ secrets.DEV_KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
