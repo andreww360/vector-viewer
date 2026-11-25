@@ -21,6 +21,21 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Motor CorelDRAW (libcdr). Se recompila solo si cambia la carpeta native/.
+      - name: Caché del motor CDR
+        id: cdrcache
+        uses: actions/cache@v4
+        with:
+          path: app/src/main/jniLibs
+          key: cdr-native-v1-${{ hashFiles('native/**') }}
+
+      - name: Compilar motor CDR (libcdr)
+        if: steps.cdrcache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq autoconf automake libtool pkg-config libboost-dev > /dev/null
+          bash native/build-cdr.sh arm64-v8a
+
       - name: Preparar firma fija (desde los secretos del repositorio)
         env:
           DEV_KEYSTORE_BASE64: ${{ secrets.DEV_KEYSTORE_BASE64 }}

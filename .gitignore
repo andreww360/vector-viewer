@@ -9,3 +9,5 @@ build/
 .cxx/
 *.keystore
 *.jks
+native-build/
+app/src/main/jniLibs/

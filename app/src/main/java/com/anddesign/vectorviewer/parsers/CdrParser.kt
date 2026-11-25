@@ -2,7 +2,9 @@ package com.anddesign.vectorviewer.parsers
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.anddesign.vectorviewer.render.CdrNative
 import com.anddesign.vectorviewer.render.PreviewImageDocument
+import com.anddesign.vectorviewer.render.SvgVectorDocument
 import com.anddesign.vectorviewer.render.VectorDocument
 import java.io.File
 import java.util.zip.ZipFile
@@ -18,6 +20,19 @@ import kotlin.math.min
 object CdrParser {
 
     fun parse(file: File): VectorDocument {
+        // 1) Motor vectorial completo (libcdr), si viene en el APK
+        if (CdrNative.available) {
+            val pages = runCatching { CdrNative.convertToSvg(file.absolutePath) }.getOrNull()
+            if (!pages.isNullOrEmpty()) {
+                val svgs = pages.map { CdrNative.normalizeSvg(String(it, Charsets.UTF_8)) }
+                val doc = runCatching {
+                    SvgVectorDocument.fromStrings(svgs, "CorelDRAW · vector completo (libcdr) · ${svgs.size} página(s)")
+                }.getOrNull()
+                if (doc != null) return doc
+            }
+        }
+
+        // 2) Respaldo: miniatura incrustada en el archivo
         val head = ByteArray(12)
         val n = file.inputStream().use { it.read(head) }
         val isZip = n >= 4 && head[0] == 'P'.code.toByte() && head[1] == 'K'.code.toByte()

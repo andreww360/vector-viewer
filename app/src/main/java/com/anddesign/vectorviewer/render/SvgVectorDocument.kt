@@ -11,19 +11,23 @@ import java.io.File
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
-/** SVG y SVGZ con AndroidSVG. Las unidades SVG (px a 96 dpi, mm, cm…) se convierten a pt. */
+/**
+ * Uno o varios SVG (una página cada uno), dibujados con AndroidSVG.
+ * Se usa para archivos SVG/SVGZ y para lo que el motor CorelDRAW convierte a SVG.
+ * Las unidades SVG (px a 96 dpi, mm, cm, in…) se convierten a pt.
+ */
 class SvgVectorDocument private constructor(
-    private val svg: SVG,
-    private val widthPx: Float,
-    private val heightPx: Float,
+    private val pages: List<Page>,
+    override val engineNote: String,
 ) : VectorDocument {
 
-    override val pageCount = 1
+    private class Page(val svg: SVG, val widthPx: Float, val heightPx: Float)
+
+    override val pageCount: Int get() = pages.size
     override val hasRealScale = true
     override val isPreviewOnly = false
-    override val engineNote = "SVG (AndroidSVG)"
 
-    override fun pageSize(page: Int) = SizeF(widthPx * PX_TO_PT, heightPx * PX_TO_PT)
+    override fun pageSize(page: Int): SizeF = pages[page].let { SizeF(it.widthPx * PX_TO_PT, it.heightPx * PX_TO_PT) }
 
     override fun render(page: Int, bitmap: Bitmap, matrix: Matrix) {
         val canvas = Canvas(bitmap)
@@ -32,10 +36,11 @@ class SvgVectorDocument private constructor(
     }
 
     override fun drawVector(page: Int, canvas: Canvas): Boolean {
+        val p = pages[page]
         canvas.save()
         canvas.scale(PX_TO_PT, PX_TO_PT)
-        synchronized(svg) {
-            svg.renderToCanvas(canvas, RenderOptions().viewPort(0f, 0f, widthPx, heightPx))
+        synchronized(p.svg) {
+            p.svg.renderToCanvas(canvas, RenderOptions().viewPort(0f, 0f, p.widthPx, p.heightPx))
         }
         canvas.restore()
         return true
@@ -49,7 +54,16 @@ class SvgVectorDocument private constructor(
             val raw: InputStream = BufferedInputStream(file.inputStream())
             val stream: InputStream = if (gz) GZIPInputStream(raw) else raw
             val svg = stream.use { SVG.getFromInputStream(it) }
+            return SvgVectorDocument(listOf(page(svg)), "SVG (AndroidSVG)")
+        }
 
+        /** Varias páginas a partir de texto SVG (p. ej. la salida del motor CorelDRAW). */
+        fun fromStrings(svgPages: List<String>, note: String): SvgVectorDocument {
+            require(svgPages.isNotEmpty()) { "Sin páginas" }
+            return SvgVectorDocument(svgPages.map { page(SVG.getFromString(it)) }, note)
+        }
+
+        private fun page(svg: SVG): Page {
             var w = svg.documentWidth
             var h = svg.documentHeight
             val vb = svg.documentViewBox
@@ -62,7 +76,7 @@ class SvgVectorDocument private constructor(
             }
             svg.setDocumentWidth(w)
             svg.setDocumentHeight(h)
-            return SvgVectorDocument(svg, w, h)
+            return Page(svg, w, h)
         }
     }
 }

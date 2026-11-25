@@ -31,6 +31,10 @@ object FormatDetector {
             ascii.startsWith("RIFF") && ascii.length >= 11 &&
                 ascii.substring(8, 11).equals("CDR", ignoreCase = true) -> VectorFormat.CDR
 
+            // Corel Presentation Exchange (CMX)
+            ascii.startsWith("RIFF") && ascii.length >= 11 &&
+                ascii.substring(8, 11).equals("CMX", ignoreCase = true) -> VectorFormat.CDR
+
             // CorelDRAW X4+ (contenedor ZIP)
             magic(0x50, 0x4B, 0x03, 0x04) && byExt == VectorFormat.CDR -> VectorFormat.CDR
 

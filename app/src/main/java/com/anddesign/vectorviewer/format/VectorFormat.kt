@@ -13,7 +13,7 @@ enum class VectorFormat(val label: String, val badge: String, val mimeType: Stri
     companion object {
         private val EXTENSIONS = setOf(
             "pdf", "ai", "eps", "epsf", "epsi", "ps",
-            "svg", "svgz", "cdr", "dxf", "plt", "hpgl", "hpg"
+            "svg", "svgz", "cdr", "cmx", "dxf", "plt", "hpgl", "hpg"
         )
 
         fun extensionOf(name: String): String = name.substringAfterLast('.', "").lowercase()
@@ -23,7 +23,7 @@ enum class VectorFormat(val label: String, val badge: String, val mimeType: Stri
             "ai" -> AI
             "eps", "epsf", "epsi", "ps" -> EPS
             "svg", "svgz" -> SVG
-            "cdr" -> CDR
+            "cdr", "cmx" -> CDR
             "dxf" -> DXF
             "plt", "hpgl", "hpg" -> PLT
             else -> UNKNOWN
