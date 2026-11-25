@@ -147,7 +147,14 @@ prefieren pagar una vez antes que suscribirse:
 
 ---
 
-## 8. Licencias — importante para vender
+## 8. Firma de las versiones de prueba
+
+Las versiones de prueba se firman siempre con la misma llave, guardada como secretos del repositorio
+(`DEV_KEYSTORE_BASE64` y `DEV_KEYSTORE_PASSWORD`, en Settings → Secrets and variables → Actions).
+Hash de firma (para registrar la app en Microsoft): `GsuwuLJpjKmNqUgj5pACvNxE2sI=`.
+La llave de publicación en Play Store será distinta y nunca se sube al repositorio.
+
+## 9. Licencias — importante para vender
 
 | Componente | Licencia | ¿Se puede vender en app cerrada? |
 |---|---|---|
