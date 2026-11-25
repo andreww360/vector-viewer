@@ -20,6 +20,16 @@ data class RecentFile(
 
 data class SavedFolder(val uri: String, val name: String)
 
+/** Carpeta favorita: cualquier carpeta o subcarpeta, con un nombre propio opcional. */
+data class FavoriteFolder(
+    val uri: String,
+    val name: String,
+    val path: String,
+    val alias: String = "",
+) {
+    val label: String get() = alias.ifBlank { name }
+}
+
 object Repos {
     lateinit var library: LibraryRepository
         private set
@@ -39,6 +49,27 @@ class LibraryRepository(context: Context) {
 
     private val _folders = MutableStateFlow(loadFolders())
     val folders: StateFlow<List<SavedFolder>> = _folders.asStateFlow()
+
+    private val _favoriteFolders = MutableStateFlow(loadFavoriteFolders())
+    val favoriteFolders: StateFlow<List<FavoriteFolder>> = _favoriteFolders.asStateFlow()
+
+    fun toggleFavoriteFolder(uri: String, name: String, path: String) {
+        _favoriteFolders.update { list ->
+            if (list.any { it.uri == uri }) list.filterNot { it.uri == uri }
+            else list + FavoriteFolder(uri, name, path)
+        }
+        saveFavoriteFolders()
+    }
+
+    fun renameFavoriteFolder(uri: String, alias: String) {
+        _favoriteFolders.update { list -> list.map { if (it.uri == uri) it.copy(alias = alias.trim()) else it } }
+        saveFavoriteFolders()
+    }
+
+    fun removeFavoriteFolder(uri: String) {
+        _favoriteFolders.update { list -> list.filterNot { it.uri == uri } }
+        saveFavoriteFolders()
+    }
 
     var unit: LengthUnit
         get() = runCatching { LengthUnit.valueOf(prefs.getString(KEY_UNIT, null) ?: "") }.getOrDefault(LengthUnit.MM)
@@ -117,7 +148,24 @@ class LibraryRepository(context: Context) {
         prefs.edit().putString(KEY_FOLDERS, arr.toString()).apply()
     }
 
+    private fun loadFavoriteFolders(): List<FavoriteFolder> = runCatching {
+        val arr = JSONArray(prefs.getString(KEY_FAV_FOLDERS, "[]"))
+        List(arr.length()) { i ->
+            val o = arr.getJSONObject(i)
+            FavoriteFolder(o.getString("uri"), o.getString("name"), o.optString("path"), o.optString("alias"))
+        }
+    }.getOrDefault(emptyList())
+
+    private fun saveFavoriteFolders() {
+        val arr = JSONArray()
+        _favoriteFolders.value.forEach {
+            arr.put(JSONObject().put("uri", it.uri).put("name", it.name).put("path", it.path).put("alias", it.alias))
+        }
+        prefs.edit().putString(KEY_FAV_FOLDERS, arr.toString()).apply()
+    }
+
     private companion object {
+        const val KEY_FAV_FOLDERS = "favorite_folders"
         const val MAX_RECENTS = 60
         const val KEY_RECENTS = "recents"
         const val KEY_FOLDERS = "folders"

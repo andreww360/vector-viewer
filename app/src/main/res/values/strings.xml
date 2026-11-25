@@ -67,4 +67,10 @@
     <string name="no_results">Sin resultados para «%1$s»</string>
     <string name="search_no_folders">Agrega carpetas (teléfono, SD o USB) para buscar dentro de todas ellas, incluidas sus subcarpetas. Los archivos abiertos desde Drive u OneDrive también aparecen en Recientes.</string>
     <string name="add_folder">Agregar carpeta</string>
+    <string name="favorite_folders">Carpetas favoritas</string>
+    <string name="folder_favorite">Carpeta favorita</string>
+    <string name="folder_fav_added">Agregada a carpetas favoritas</string>
+    <string name="folder_fav_removed">Quitada de carpetas favoritas</string>
+    <string name="rename_folder">Cambiar nombre</string>
+    <string name="cancel">Cancelar</string>
 </resources>

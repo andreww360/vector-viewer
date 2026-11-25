@@ -67,4 +67,10 @@
     <string name="no_results">No results for “%1$s”</string>
     <string name="search_no_folders">Add folders (phone, SD or USB) to search inside all of them, including subfolders. Files opened from Drive or OneDrive also show up under Recent.</string>
     <string name="add_folder">Add folder</string>
+    <string name="favorite_folders">Favorite folders</string>
+    <string name="folder_favorite">Favorite folder</string>
+    <string name="folder_fav_added">Added to favorite folders</string>
+    <string name="folder_fav_removed">Removed from favorite folders</string>
+    <string name="rename_folder">Rename</string>
+    <string name="cancel">Cancel</string>
 </resources>

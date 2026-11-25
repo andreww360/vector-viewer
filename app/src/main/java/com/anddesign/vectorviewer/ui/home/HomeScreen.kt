@@ -47,6 +47,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.outlined.Search
 import com.anddesign.vectorviewer.data.FileIndex
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.filled.FolderSpecial
+import androidx.compose.material.icons.outlined.Edit
+import com.anddesign.vectorviewer.data.FavoriteFolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -75,6 +84,8 @@ fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> U
     val context = LocalContext.current
     val recents by Repos.library.recents.collectAsStateWithLifecycle()
     val folders by Repos.library.folders.collectAsStateWithLifecycle()
+    val favoriteFolders by Repos.library.favoriteFolders.collectAsStateWithLifecycle()
+    var renaming by remember { mutableStateOf<FavoriteFolder?>(null) }
 
     // Mantiene el índice de búsqueda global al día en segundo plano
     LaunchedEffect(folders) { if (folders.isNotEmpty()) FileIndex.ensureFresh(context) }
@@ -118,6 +129,18 @@ fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> U
         ) {
             item { Header() }
             item { SearchBarButton(onOpenSearch) }
+
+            if (favoriteFolders.isNotEmpty()) {
+                item { SectionTitle(R.string.favorite_folders) }
+                items(favoriteFolders, key = { "favfolder:" + it.uri }) { f ->
+                    FavoriteFolderRow(
+                        folder = f,
+                        onClick = { onOpenFolder(f.uri, f.path.ifBlank { f.name }) },
+                        onRename = { renaming = f },
+                        onRemove = { Repos.library.removeFavoriteFolder(f.uri) },
+                    )
+                }
+            }
 
             item { SectionTitle(R.string.open_from) }
             item {
@@ -171,6 +194,56 @@ fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> U
             }
             items(others, key = { "recent:" + it.uri }) { r -> RecentRow(r, onOpenFile) }
         }
+    }
+
+    renaming?.let { f -> RenameFolderDialog(f) { renaming = null } }
+}
+
+@Composable
+private fun RenameFolderDialog(folder: FavoriteFolder, onDismiss: () -> Unit) {
+    var text by remember(folder.uri) { mutableStateOf(folder.alias.ifBlank { folder.name }) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.rename_folder)) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                singleLine = true,
+                supportingText = { Text(folder.path, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                Repos.library.renameFavoriteFolder(folder.uri, if (text.trim() == folder.name) "" else text)
+                onDismiss()
+            }) { Text(stringResource(R.string.ok)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+@Composable
+private fun FavoriteFolderRow(folder: FavoriteFolder, onClick: () -> Unit, onRename: () -> Unit, onRemove: () -> Unit) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        ListItem(
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            leadingContent = { Icon(Icons.Filled.FolderSpecial, contentDescription = null, tint = Accent) },
+            headlineContent = { Text(folder.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            supportingContent = {
+                Text(folder.path, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            },
+            trailingContent = {
+                Row {
+                    IconButton(onClick = onRename) {
+                        Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.rename_folder))
+                    }
+                    IconButton(onClick = onRemove) {
+                        Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.remove))
+                    }
+                }
+            },
+        )
     }
 }
 

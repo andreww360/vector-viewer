@@ -1,6 +1,12 @@
 package com.anddesign.vectorviewer.ui.folder
 
 import android.net.Uri
+import com.anddesign.vectorviewer.data.Repos
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.filled.Star
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,6 +79,13 @@ fun FolderScreen(treeUri: String, title: String, onOpenFile: (String) -> Unit, o
     val current = stack.lastOrNull()
     var query by rememberSaveable { mutableStateOf("") }
     var sortByDate by rememberSaveable { mutableStateOf(false) }
+    val favoriteFolders by Repos.library.favoriteFolders.collectAsStateWithLifecycle()
+    val currentUri = current?.uri?.toString()
+    val isFavorite = currentUri != null && favoriteFolders.any { it.uri == currentUri }
+    // Ruta legible: "Trabajos / Yamaha / YZ250 / 2024"
+    val pathLabel = (listOf(title) + stack.drop(1).map { it.name ?: "?" }).joinToString(" / ")
+    val addedMsg = stringResource(R.string.folder_fav_added)
+    val removedMsg = stringResource(R.string.folder_fav_removed)
 
     val entries by produceState<List<FolderEntry>?>(null, current) {
         value = null
@@ -98,13 +111,38 @@ fun FolderScreen(treeUri: String, title: String, onOpenFile: (String) -> Unit, o
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(current?.name ?: title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = {
+                    Column {
+                        Text(current?.name ?: title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (stack.size > 1) {
+                            Text(
+                                pathLabel,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { goUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
+                    if (current != null && currentUri != null) {
+                        IconButton(onClick = {
+                            Repos.library.toggleFavoriteFolder(currentUri, current.name ?: title, pathLabel)
+                            Toast.makeText(context, if (isFavorite) removedMsg else addedMsg, Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(
+                                if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                contentDescription = stringResource(R.string.folder_favorite),
+                                tint = if (isFavorite) Accent else LocalContentColor.current,
+                            )
+                        }
+                    }
                     IconButton(onClick = onOpenSearch) {
                         Icon(Icons.Outlined.TravelExplore, contentDescription = stringResource(R.string.search_all))
                     }
