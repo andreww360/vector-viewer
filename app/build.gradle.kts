@@ -14,8 +14,8 @@ android {
         applicationId = "com.anddesign.vectorviewer"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.6.0"
+        versionCode = 7
+        versionName = "0.6.1"
     }
 
     // Firma fija para las versiones de prueba (necesaria para iniciar sesión en OneDrive y para

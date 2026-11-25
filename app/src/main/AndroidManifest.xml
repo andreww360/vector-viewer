@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Necesario para OneDrive (inicio de sesión de Microsoft y descarga de archivos) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Sin permisos de almacenamiento: todo el acceso a archivos (teléfono, SD,
          Google Drive, OneDrive, Dropbox…) pasa por el Storage Access Framework.
          Así la app cumple la política de Play Store sin pedir MANAGE_EXTERNAL_STORAGE. -->
