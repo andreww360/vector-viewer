@@ -14,11 +14,13 @@ import androidx.core.content.IntentCompat
 import androidx.lifecycle.ViewModel
 import com.anddesign.vectorviewer.ui.folder.FolderScreen
 import com.anddesign.vectorviewer.ui.home.HomeScreen
+import com.anddesign.vectorviewer.ui.search.SearchScreen
 import com.anddesign.vectorviewer.ui.theme.VectorViewerTheme
 import com.anddesign.vectorviewer.ui.viewer.ViewerScreen
 
 sealed interface Screen {
     data object Home : Screen
+    data object Search : Screen
     data class Viewer(val uri: String) : Screen
     data class Folder(val treeUri: String, val name: String) : Screen
 }
@@ -76,12 +78,18 @@ private fun AppRoot(nav: AppNavViewModel) {
         Screen.Home -> HomeScreen(
             onOpenFile = { nav.push(Screen.Viewer(it)) },
             onOpenFolder = { uri, name -> nav.push(Screen.Folder(uri, name)) },
+            onOpenSearch = { nav.push(Screen.Search) },
+        )
+        Screen.Search -> SearchScreen(
+            onOpenFile = { nav.push(Screen.Viewer(it)) },
+            onBack = { nav.pop() },
         )
         is Screen.Viewer -> ViewerScreen(screen.uri, onBack = { nav.pop() })
         is Screen.Folder -> FolderScreen(
             treeUri = screen.treeUri,
             title = screen.name,
             onOpenFile = { nav.push(Screen.Viewer(it)) },
+            onOpenSearch = { nav.push(Screen.Search) },
             onBack = { nav.pop() },
         )
     }

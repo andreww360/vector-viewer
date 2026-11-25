@@ -57,4 +57,14 @@
     <string name="send_to_claude">Send to Claude</string>
     <string name="print_error">Could not print</string>
     <string name="claude_missing">Install the Claude app to send it the design</string>
+    <string name="search_all">Search all folders</string>
+    <string name="search_hint">Name, folder or model…</string>
+    <string name="filter_all">All</string>
+    <string name="index_status">%1$d files in %2$d folders</string>
+    <string name="indexing">Indexing… %1$d files</string>
+    <string name="refresh_index">Refresh index</string>
+    <string name="clear">Clear</string>
+    <string name="no_results">No results for “%1$s”</string>
+    <string name="search_no_folders">Add folders (phone, SD or USB) to search inside all of them, including subfolders. Files opened from Drive or OneDrive also show up under Recent.</string>
+    <string name="add_folder">Add folder</string>
 </resources>

@@ -42,6 +42,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.outlined.Search
+import com.anddesign.vectorviewer.data.FileIndex
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,10 +71,13 @@ private const val PKG_DRIVE = "com.google.android.apps.docs"
 private const val PKG_ONEDRIVE = "com.microsoft.skydrive"
 
 @Composable
-fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> Unit) {
+fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> Unit, onOpenSearch: () -> Unit) {
     val context = LocalContext.current
     val recents by Repos.library.recents.collectAsStateWithLifecycle()
     val folders by Repos.library.folders.collectAsStateWithLifecycle()
+
+    // Mantiene el índice de búsqueda global al día en segundo plano
+    LaunchedEffect(folders) { if (folders.isNotEmpty()) FileIndex.ensureFresh(context) }
 
     // Selector del sistema (SAF): muestra Teléfono, SD, USB, Google Drive, OneDrive, Dropbox…
     val openDoc = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -109,6 +117,7 @@ fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> U
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item { Header() }
+            item { SearchBarButton(onOpenSearch) }
 
             item { SectionTitle(R.string.open_from) }
             item {
@@ -183,6 +192,22 @@ private fun Header() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Composable
+private fun SearchBarButton(onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        Row(Modifier.padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Search, contentDescription = null, tint = Accent)
+            Spacer(Modifier.width(12.dp))
+            Text(stringResource(R.string.search_all), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SortByAlpha
+import androidx.compose.material.icons.outlined.TravelExplore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,7 +66,7 @@ private class FolderEntry(
 /** Galería de una carpeta (local o en la nube) con miniaturas, búsqueda y orden. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderScreen(treeUri: String, title: String, onOpenFile: (String) -> Unit, onBack: () -> Unit) {
+fun FolderScreen(treeUri: String, title: String, onOpenFile: (String) -> Unit, onOpenSearch: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val root = remember(treeUri) { DocumentFile.fromTreeUri(context, Uri.parse(treeUri)) }
     val stack = remember(treeUri) { mutableStateListOf<DocumentFile>().apply { root?.let { add(it) } } }
@@ -104,6 +105,9 @@ fun FolderScreen(treeUri: String, title: String, onOpenFile: (String) -> Unit, o
                     }
                 },
                 actions = {
+                    IconButton(onClick = onOpenSearch) {
+                        Icon(Icons.Outlined.TravelExplore, contentDescription = stringResource(R.string.search_all))
+                    }
                     IconButton(onClick = { sortByDate = !sortByDate }) {
                         Icon(
                             if (sortByDate) Icons.Outlined.SortByAlpha else Icons.Outlined.Schedule,

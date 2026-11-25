@@ -57,4 +57,14 @@
     <string name="send_to_claude">Enviar a Claude</string>
     <string name="print_error">No se pudo imprimir</string>
     <string name="claude_missing">Instala la app de Claude para enviarle el diseño</string>
+    <string name="search_all">Buscar en todas las carpetas</string>
+    <string name="search_hint">Nombre, carpeta o modelo…</string>
+    <string name="filter_all">Todos</string>
+    <string name="index_status">%1$d archivos en %2$d carpetas</string>
+    <string name="indexing">Indexando… %1$d archivos</string>
+    <string name="refresh_index">Actualizar índice</string>
+    <string name="clear">Borrar</string>
+    <string name="no_results">Sin resultados para «%1$s»</string>
+    <string name="search_no_folders">Agrega carpetas (teléfono, SD o USB) para buscar dentro de todas ellas, incluidas sus subcarpetas. Los archivos abiertos desde Drive u OneDrive también aparecen en Recientes.</string>
+    <string name="add_folder">Agregar carpeta</string>
 </resources>
