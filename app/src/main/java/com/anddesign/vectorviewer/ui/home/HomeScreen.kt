@@ -80,7 +80,12 @@ private const val PKG_DRIVE = "com.google.android.apps.docs"
 private const val PKG_ONEDRIVE = "com.microsoft.skydrive"
 
 @Composable
-fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> Unit, onOpenSearch: () -> Unit) {
+fun HomeScreen(
+    onOpenFile: (String) -> Unit,
+    onOpenFolder: (String, String) -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenOneDrive: () -> Unit,
+) {
     val context = LocalContext.current
     val recents by Repos.library.recents.collectAsStateWithLifecycle()
     val folders by Repos.library.folders.collectAsStateWithLifecycle()
@@ -155,7 +160,7 @@ fun HomeScreen(onOpenFile: (String) -> Unit, onOpenFolder: (String, String) -> U
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         SourceCard(Icons.Outlined.Cloud, R.string.src_onedrive, R.string.src_onedrive_sub, Modifier.weight(1f)) {
-                            openFromCloud(PKG_ONEDRIVE, R.string.hint_onedrive)
+                            onOpenOneDrive()
                         }
                         SourceCard(Icons.Outlined.FolderOpen, R.string.src_folder, R.string.src_folder_sub, Modifier.weight(1f)) {
                             openTree.launch(null)

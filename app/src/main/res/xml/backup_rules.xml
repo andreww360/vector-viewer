@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- La sesión de OneDrive no se respalda ni se copia a otros dispositivos -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="onedrive.xml" />
+</full-backup-content>

@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.LruCache
+import com.anddesign.vectorviewer.data.OneDrive
 import com.anddesign.vectorviewer.util.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
@@ -37,6 +38,14 @@ object ThumbnailCache {
                     memory.put(key, it)
                     return@withContext it
                 }
+            }
+
+            // OneDrive: solo si ya se descargó antes (no bajamos archivos completos para una miniatura)
+            val parsed = Uri.parse(uri)
+            if (parsed.scheme == OneDrive.SCHEME) {
+                val id = OneDrive.itemIdFromUri(parsed)
+                val mod = parsed.getQueryParameter("mod")?.toLongOrNull() ?: 0L
+                if (id == null || !OneDrive.cachedFileExists(context, id, mod)) return@withContext null
             }
 
             gate.withPermit {

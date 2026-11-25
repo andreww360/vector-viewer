@@ -14,8 +14,8 @@ android {
         applicationId = "com.anddesign.vectorviewer"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0"
+        versionCode = 6
+        versionName = "0.6.0"
     }
 
     // Firma fija para las versiones de prueba (necesaria para iniciar sesión en OneDrive y para
@@ -76,6 +76,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
     implementation("androidx.documentfile:documentfile:1.1.0")
+    implementation("androidx.browser:browser:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     // Motor SVG (Apache 2.0, uso comercial permitido)

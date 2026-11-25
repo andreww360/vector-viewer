@@ -3,6 +3,7 @@ package com.anddesign.vectorviewer.util
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.anddesign.vectorviewer.data.OneDrive
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
@@ -33,6 +34,9 @@ object FileUtils {
                     }
                 }
             }
+        } else if (uri.scheme == OneDrive.SCHEME) {
+            name = uri.getQueryParameter("name")
+            size = uri.getQueryParameter("size")?.toLongOrNull() ?: -1L
         } else if (uri.scheme == "file") {
             uri.path?.let { p -> File(p).let { f -> name = f.name; size = f.length() } }
         }
@@ -55,6 +59,10 @@ object FileUtils {
         if (uri.scheme == "file") {
             val f = File(uri.path ?: throw IOException("Ruta inválida"))
             if (f.canRead()) return f
+        }
+        if (uri.scheme == OneDrive.SCHEME) {
+            val id = OneDrive.itemIdFromUri(uri) ?: throw IOException("Archivo de OneDrive no válido")
+            return OneDrive.downloadToCache(context, id, name, uri.getQueryParameter("mod")?.toLongOrNull() ?: 0L)
         }
         val target = cacheFileFor(context, uri, name)
         try {

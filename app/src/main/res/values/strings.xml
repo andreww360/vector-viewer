@@ -9,7 +9,7 @@
     <string name="src_drive">Google Drive</string>
     <string name="src_drive_sub">Tus archivos en la nube</string>
     <string name="src_onedrive">OneDrive</string>
-    <string name="src_onedrive_sub">Microsoft 365</string>
+    <string name="src_onedrive_sub">Navega y busca en todo tu OneDrive</string>
     <string name="src_folder">Explorar carpeta</string>
     <string name="src_folder_sub">Galería con miniaturas</string>
     <string name="hint_drive">En el selector, abre el menú ☰ y elige Google Drive</string>
@@ -73,4 +73,9 @@
     <string name="folder_fav_removed">Quitada de carpetas favoritas</string>
     <string name="rename_folder">Cambiar nombre</string>
     <string name="cancel">Cancelar</string>
+    <string name="onedrive_root">Mi OneDrive</string>
+    <string name="onedrive_search_hint">Buscar en todo tu OneDrive…</string>
+    <string name="onedrive_sign_out">Cerrar sesión de OneDrive</string>
+    <string name="onedrive_error">No se pudo conectar con OneDrive</string>
+    <string name="retry">Reintentar</string>
 </resources>

@@ -60,6 +60,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anddesign.vectorviewer.R
 import com.anddesign.vectorviewer.data.FileIndex
 import com.anddesign.vectorviewer.data.IndexedFile
+import com.anddesign.vectorviewer.data.OneDrive
 import com.anddesign.vectorviewer.data.Repos
 import com.anddesign.vectorviewer.format.VectorFormat
 import com.anddesign.vectorviewer.ui.components.DocThumbnail
@@ -108,6 +109,26 @@ fun SearchScreen(onOpenFile: (String) -> Unit, onBack: () -> Unit) {
         delay(120)
         val format = formatFilter?.let { VectorFormat.fromBadge(it) }
         value = withContext(Dispatchers.Default) { FileIndex.search(all, query, format) }
+    }
+
+    // OneDrive: búsqueda en vivo en todo el OneDrive (si hay sesión iniciada)
+    val oneDriveAccount by OneDrive.account.collectAsStateWithLifecycle()
+    val oneDriveResults by produceState(emptyList<IndexedFile>(), query, oneDriveAccount) {
+        value = emptyList()
+        val q = query.trim()
+        if (oneDriveAccount != null && q.length >= 2) {
+            delay(400)
+            value = runCatching {
+                OneDrive.search(context, q).filter { !it.isFolder }.map {
+                    IndexedFile(it.fileUri, it.name, "OneDrive", it.path, it.modified, it.size)
+                }
+            }.getOrDefault(emptyList())
+        }
+    }
+    val combined = results?.let { local ->
+        val known = local.mapTo(HashSet()) { it.uri }
+        val format = formatFilter?.let { VectorFormat.fromBadge(it) }
+        local + oneDriveResults.filter { it.uri !in known && (format == null || VectorFormat.fromExtension(it.name) == format) }
     }
 
     Scaffold(
@@ -180,9 +201,9 @@ fun SearchScreen(onOpenFile: (String) -> Unit, onBack: () -> Unit) {
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             )
 
-            val list = results
+            val list = combined
             when {
-                folders.isEmpty() && recents.isEmpty() -> NoFolders { addFolder.launch(null) }
+                folders.isEmpty() && recents.isEmpty() && oneDriveAccount == null -> NoFolders { addFolder.launch(null) }
                 list == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                 list.isEmpty() -> Column(
                     Modifier.fillMaxSize().padding(32.dp),
