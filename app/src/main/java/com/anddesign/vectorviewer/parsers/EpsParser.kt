@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.RectF
 import com.anddesign.vectorviewer.render.PreviewImageDocument
+import com.anddesign.vectorviewer.render.PsVectorDocument
 import com.anddesign.vectorviewer.render.VectorDocument
 import java.io.File
 import kotlin.math.min
@@ -16,9 +17,8 @@ import kotlin.math.min
  * previa incrustada — TIFF del encabezado DOS (lo que guarda Illustrator), EPSI o miniatura
  * de Photoshop.
  *
- * Fase 2 (Pro): render vectorial completo con un intérprete PostScript (Ghostscript vía NDK).
- * Ver README → "Licencias": Ghostscript es AGPL y requiere licencia comercial de Artifex
- * para venderse en una app cerrada.
+ * Fase 2: render vectorial completo con el motor PostScript propio (paquete ps, sin Ghostscript).
+ * Si el motor no logra interpretar el archivo sin errores, se usa la vista previa incrustada.
  */
 object EpsParser {
 
@@ -60,6 +60,19 @@ object EpsParser {
         }
 
         val kind = if (legacyAi) "Illustrator antiguo (PostScript)" else "EPS"
+
+        // Motor PostScript propio: dibujo vectorial completo. Si el archivo usa algo que el motor
+        // todavía no interpreta bien y trae vista previa incrustada, se muestra la vista previa.
+        if (bbox != null) {
+            val vector = PsEngine.run(ps, bbox, legacyAi || text.contains("%%Creator: Adobe Illustrator"))
+            if (vector != null && (vector.second == 0 || preview == null)) {
+                return PsVectorDocument(
+                    vector.first, bbox.left, bbox.top, bbox.right, bbox.bottom,
+                    if (vector.second == 0) "$kind · vector completo (motor propio)"
+                    else "$kind · vector (motor propio, puede verse incompleto)",
+                )
+            }
+        }
         val note = if (preview != null) {
             "$kind · vista previa $source incrustada"
         } else {
